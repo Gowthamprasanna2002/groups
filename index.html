@@ -13,7 +13,10 @@
     <div class="form-container">
         <h2>EMBEDDED SYS & IOT - (SALEM)</h2>
 
-        <form action="https://formspree.io/f/xblknwov" method="POST" enctype="multipart/form-data">
+        <!-- Updated form for Netlify handling -->
+        <form name="attendance" method="POST" data-netlify="true" enctype="multipart/form-data">
+            <!-- Hidden field to ensure the form is processed by Netlify -->
+            <input type="hidden" name="form-name" value="attendance">
 
             <!-- Name -->
             <div class="form-group">
@@ -25,7 +28,6 @@
             <div class="form-group">
                 <label for="college">College Name</label>
                 <input list="college-list" id="college" name="college" placeholder="Select or type your college" required>
-
                 <datalist id="college-list">
                     <option value="Shree Sathyam College of Engineering and Technology">
                     <option value="GOVERNMENT COLLEGE OF ENGINEERING - SALEM">
