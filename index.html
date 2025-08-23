@@ -5,24 +5,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendance Form</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css"> <!-- Link your own CSS file here -->
 </head>
 
 <body>
 
     <div class="form-container">
         <h2>EMBEDDED SYS & IOT - (SALEM)</h2>
-        <form>
+
+        <form action="https://formspree.io/f/xblknwov" method="POST" enctype="multipart/form-data">
+
             <!-- Name -->
             <div class="form-group">
                 <label for="name">Name</label>
-                <input type="text" id="name" placeholder="Enter your full name" required>
+                <input type="text" id="name" name="name" placeholder="Enter your full name" required>
             </div>
 
             <!-- College Name -->
             <div class="form-group">
                 <label for="college">College Name</label>
-                <input list="college-list" id="college" placeholder="Select or type your college" required>
+                <input list="college-list" id="college" name="college" placeholder="Select or type your college" required>
 
                 <datalist id="college-list">
                     <option value="Shree Sathyam College of Engineering and Technology">
@@ -30,7 +32,7 @@
                     <option value="AVS Engineering College - (Batch 1)">
                     <option value="AVS Engineering College - (Batch 2)">
                     <option value="AVS Engineering College - (Batch)">
-                    <option value="Bharathiyar Institute of engineering for women">
+                    <option value="Bharathiyar Institute of Engineering for Women">
                     <option value="Ganesh College of Engineering">
                     <option value="MAHENDRA COLLEGE OF ENGINEERING">
                     <option value="SALEM COLLEGE OF ENGINEERING AND TECHNOLOGY -(Batch 1)">
@@ -41,29 +43,28 @@
                 </datalist>
             </div>
 
-
-            <!-- Attendance Upload -->
+            <!-- Attendance File -->
             <div class="form-group">
                 <label for="attendance">Attendance File (PDF/Image)</label>
-                <input type="file" id="attendance" accept=".pdf,.jpg,.png,.jpeg" required>
+                <input type="file" id="attendance" name="attendance_file" accept=".pdf,.jpg,.png,.jpeg" required>
             </div>
 
             <!-- Geo-tag Image -->
             <div class="form-group">
                 <label for="geoImage">Geo-tag Image</label>
-                <input type="file" id="geoImage" accept="image/*" required>
+                <input type="file" id="geoImage" name="geo_image" accept="image/*" required>
             </div>
 
             <!-- Date -->
             <div class="form-group">
                 <label for="date">Date</label>
-                <input type="date" id="date" required>
+                <input type="date" id="date" name="date" required>
             </div>
 
             <!-- Day -->
             <div class="form-group">
                 <label for="day">Day</label>
-                <select id="day" required>
+                <select id="day" name="day" required>
                     <option value="" disabled selected>Select Day</option>
                     <option value="Day 1">Day 1</option>
                     <option value="Day 2">Day 2</option>
@@ -80,15 +81,15 @@
                 </select>
             </div>
 
+            <!-- Optional redirect after submit -->
+            <input type="hidden" name="_next" value="https://your-redirect-page.com/thank-you.html">
 
-            <!-- Submit -->
+            <!-- Submit Button -->
             <button type="submit" class="btn-submit">Submit</button>
         </form>
-        
-         <h6 class="Name"> Gowtham</h6>
-    </div>
 
-   
+        <h6 class="Name">Gowtham</h6>
+    </div>
 
 </body>
 
