@@ -1,244 +1,273 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>LMS Portal</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .container {
-      max-width: 800px;
-      margin: 20px auto;
-      background: #fff;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    }
-    h1, h2 { text-align: center; margin-bottom: 15px; }
-    .hidden { display: none; }
-    input[type="text"], input[type="password"], textarea {
-      padding: 10px;
-      font-size: 16px;
-      width: 100%;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    button {
-      padding: 10px 20px;
-      margin: 10px 0;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
-      width: 100%;
-    }
-    button:hover { background: #0056b3; }
-    .role-buttons {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-    .role-buttons button {
-      width: 48%;
-      background: #6a11cb;
-    }
-    .role-buttons button:hover {
-      background: #4a0ea7;
-    }
-    .logout { background: #dc3545; }
-    .logout:hover { background: #a71d2a; }
-    .course {
-      border: 1px solid #ddd;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 8px;
-      background: #fafafa;
-    }
-    .course h3 { margin: 0 0 5px 0; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Attendance Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f9fafc;
+            padding: 20px;
+            line-height: 1.5;
+        }
+        h2 {
+            background: #0073e6;
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .form-container {
+            background: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 20px;
+            max-width: 900px;
+            margin: 20px auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .radio-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 8px;
+        }
+        .radio-group label {
+            font-weight: normal;
+            background: #f1f1f1;
+            padding: 6px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .radio-group input {
+            margin-right: 6px;
+        }
+        input[type="file"], 
+        input[type="date"], 
+        select {
+            margin-top: 5px;
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            background: #0073e6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background: #005bb5;
+        }
+    </style>
 </head>
 <body>
 
-<!-- LOGIN PAGE -->
-<div class="container" id="login-screen">
-  <h1>LMS Portal Login</h1>
-  <div class="role-buttons">
-    <button onclick="selectRole('admin')">Admin</button>
-    <button onclick="selectRole('student')">Student</button>
-  </div>
-  <input type="text" id="username" placeholder="Username">
-  <input type="password" id="password" placeholder="Password">
-  <button onclick="login()">Login</button>
-</div>
+    <h2>College Attendance Form</h2>
 
-<!-- ADMIN DASHBOARD -->
-<div class="container hidden" id="admin-screen">
-  <h2>Welcome, <span id="admin-name"></span> (Admin)</h2>
-  <h3>Add New Course</h3>
-  <input type="text" id="course-title" placeholder="Course Title">
-  <textarea id="course-desc" placeholder="Course Description"></textarea>
-  <button onclick="addCourse()">Add Course</button>
-
-  <h3>Existing Courses</h3>
-  <div id="course-list-admin"></div>
-  <button class="logout" onclick="logout()">Logout</button>
-</div>
-
-<!-- STUDENT DASHBOARD -->
-<div class="container hidden" id="student-screen">
-  <h2>Welcome, <span id="student-name"></span> (Student)</h2>
-  <h3>Available Courses</h3>
-  <div id="course-list-student"></div>
-  <button class="logout" onclick="logout()">Logout</button>
-</div>
-
-<script>
-  // Hardcoded users
-  const users = [
-    { username: "admin", password: "admin123", role: "admin" },
-    { username: "student1", password: "pass123", role: "student" },
-    { username: "student2", password: "pass456", role: "student" }
-  ];
-
-  let currentUser = { username: "", role: "" };
-  let selectedRole = "";
-
-  function selectRole(role) {
-    selectedRole = role;
-    alert("Selected role: " + role.toUpperCase());
-  }
-
-  function getCourses() {
-    return JSON.parse(localStorage.getItem("courses") || "[]");
-  }
-
-  function saveCourses(courses) {
-    localStorage.setItem("courses", JSON.stringify(courses));
-  }
-
-  function login() {
-    const uname = document.getElementById('username').value.trim();
-    const pword = document.getElementById('password').value;
-
-    if (!selectedRole) {
-      alert("Please select a role (Admin or Student) first.");
-      return;
-    }
-
-    const user = users.find(u => 
-      u.username === uname && u.password === pword && u.role === selectedRole
-    );
-
-    if (!user) {
-      alert("Invalid username, password, or role!");
-      return;
-    }
-
-    currentUser = { username: user.username, role: user.role };
-    document.getElementById('login-screen').classList.add('hidden');
-
-    if (user.role === "admin") {
-      document.getElementById('admin-name').textContent = user.username;
-      document.getElementById('admin-screen').classList.remove('hidden');
-      renderAdminCourses();
-    } else {
-      document.getElementById('student-name').textContent = user.username;
-      document.getElementById('student-screen').classList.remove('hidden');
-      renderStudentCourses();
-    }
-  }
-
-  function addCourse() {
-    const title = document.getElementById('course-title').value.trim();
-    const desc = document.getElementById('course-desc').value.trim();
-
-    if (!title || !desc) {
-      alert("Please fill in all fields.");
-      return;
-    }
-
-    const courses = getCourses();
-    courses.push({ title, desc });
-    saveCourses(courses);
-
-    document.getElementById('course-title').value = "";
-    document.getElementById('course-desc').value = "";
-
-    renderAdminCourses();
-  }
-
-  function renderAdminCourses() {
-    const container = document.getElementById('course-list-admin');
-    const courses = getCourses();
-    container.innerHTML = "";
-
-    if (courses.length === 0) {
-      container.innerHTML = "<p>No courses available.</p>";
-      return;
-    }
-
-    courses.forEach((c, index) => {
-      const div = document.createElement('div');
-      div.className = 'course';
-      div.innerHTML = `
-        <h3>${c.title}</h3>
-        <p>${c.desc}</p>
-        <button onclick="deleteCourse(${index})">Delete</button>
-      `;
-      container.appendChild(div);
-    });
-  }
-
-  function renderStudentCourses() {
-    const container = document.getElementById('course-list-student');
-    const courses = getCourses();
-    container.innerHTML = "";
-
-    if (courses.length === 0) {
-      container.innerHTML = "<p>No courses available yet. Check back later.</p>";
-      return;
-    }
-
-    courses.forEach((c) => {
-      const div = document.createElement('div');
-      div.className = 'course';
-      div.innerHTML = `
-        <h3>${c.title}</h3>
-        <p>${c.desc}</p>
-        <button onclick="alert('You enrolled in ${c.title}')">Enroll</button>
-      `;
-      container.appendChild(div);
-    });
-  }
-
-  function deleteCourse(index) {
-    const courses = getCourses();
-    courses.splice(index, 1);
-    saveCourses(courses);
-    renderAdminCourses();
-  }
-
-  function logout() {
-    currentUser = { username: "", role: "" };
-    selectedRole = "";
-    document.getElementById('admin-screen').classList.add('hidden');
-    document.getElementById('student-screen').classList.add('hidden');
-    document.getElementById('login-screen').classList.remove('hidden');
-    document.getElementById('username').value = "";
-    document.getElementById('password').value = "";
-  }
-</script>
+    <div class="form-container">
+        <form>
+            <table>
+                <tr>
+                    <th>Field</th>
+                    <th>Input</th>
+                </tr>
+                <tr>
+                    <td><label for="name-group">NAME *</label></td>
+                    <td>
+                        <div class="radio-group" id="name-group">
+                            <label><input type="radio" name="name" value="Mr. GOPI" required>Mr. GOPI</label>
+                            <label><input type="radio" name="name" value="Mr. JAYAPAL">Mr. JAYAPAL</label>
+                            <label><input type="radio" name="name" value="Mr. KANISHK">Mr. KANISHK</label>
+                            <label><input type="radio" name="name" value="Mr. LEKHASREE">Mr. LEKHASREE</label>
+                            <label><input type="radio" name="name" value="Mr. PARTHIPAN">Mr. PARTHIPAN</label>
+                            <label><input type="radio" name="name" value="Mr. PRADEEP">Mr. PRADEEP</label>
+                            <label><input type="radio" name="name" value="Mr. RAJASEKARAN">Mr. RAJASEKARAN</label>
+                            <label><input type="radio" name="name" value="Mr. RAJENDRABABU">Mr. RAJENDRABABU</label>
+                            <label><input type="radio" name="name" value="Mr. Raja">Mr. Raja</label>
+                            <label><input type="radio" name="name" value="Mr. SIVA">Mr. SIVA</label>
+                            <label><input type="radio" name="name" value="Mr. SRIDINESHKUMAR">Mr. SRIDINESHKUMAR</label>
+                            <label><input type="radio" name="name" value="Mr. SRIRAMAN">Mr. SRIRAMAN</label>
+                            <label><input type="radio" name="name" value="Mr. SURESH RAJENDRAN">Mr. SURESH RAJENDRAN</label>
+                            <label><input type="radio" name="name" value="Ms. Aswath Begam">Ms. Aswath Begam</label>
+                            <label><input type="radio" name="name" value="Ms. B.RAMYA">Ms. B.RAMYA</label>
+                            <label><input type="radio" name="name" value="Ms. DEVAGI">Ms. DEVAGI</label>
+                            <label><input type="radio" name="name" value="Ms. DIVYA">Ms. DIVYA</label>
+                            <label><input type="radio" name="name" value="Ms. ELAKKIYA G">Ms. ELAKKIYA G</label>
+                            <label><input type="radio" name="name" value="Ms. REVATHI">Ms. REVATHI</label>
+                            <label><input type="radio" name="name" value="Ms. Samira">Ms. Samira</label>
+                            <label><input type="radio" name="name" value="Other">Other</label>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="college-group">COLLEGE NAME *</label></td>
+                    <td>
+                        <div class="radio-group" id="college-group">
+                            <label><input type="radio" name="college" value="Annai mathammal sheela Engineering college - (CIVIL)" required> Annai mathammal sheela Engineering college - (CIVIL)</label>
+                            <label><input type="radio" name="college" value="Annai mathammal sheela Engineering college - (ECE)"> Annai mathammal sheela Engineering college - (ECE)</label>
+                            <label><input type="radio" name="college" value="Annai mathammal sheela Engineering college - (EEE)"> Annai mathammal sheela Engineering college - (EEE)</label>
+                            <label><input type="radio" name="college" value="Annai mathammal sheela Engineering college - (MECH)"> Annai mathammal sheela Engineering college - (MECH)</label>
+                            <label><input type="radio" name="college" value="AVS COLLEGE OF TECHNOLOGY - (CIVIL BATCH 1 - AGRI)"> AVS COLLEGE OF TECHNOLOGY - (CIVIL BATCH 1 - AGRI)</label>
+                            <label><input type="radio" name="college" value="AVS COLLEGE OF TECHNOLOGY - (CIVIL BATCH 2)"> AVS COLLEGE OF TECHNOLOGY - (CIVIL BATCH 2)</label>
+                            <label><input type="radio" name="college" value="AVS COLLEGE OF TECHNOLOGY - (ECE)"> AVS COLLEGE OF TECHNOLOGY - (ECE)</label>
+                            <label><input type="radio" name="college" value="AVS COLLEGE OF TECHNOLOGY - (EEE)"> AVS COLLEGE OF TECHNOLOGY - (EEE)</label>
+                            <label><input type="radio" name="college" value="AVS COLLEGE OF TECHNOLOGY - (MECH)"> AVS COLLEGE OF TECHNOLOGY - (MECH)</label>
+                            <label><input type="radio" name="college" value="Bharathidasan Engineering College -(CIVIL)"> Bharathidasan Engineering College -(CIVIL)</label>
+                            <label><input type="radio" name="college" value="Bharathidasan Engineering College -(ECE)"> Bharathidasan Engineering College -(ECE)</label>
+                            <label><input type="radio" name="college" value="Bharathidasan Engineering College -(EEE)"> Bharathidasan Engineering College -(EEE)</label>
+                            <label><input type="radio" name="college" value="Bharathidasan Engineering College -(MECH)"> Bharathidasan Engineering College -(MECH)</label>
+                            <label><input type="radio" name="college" value="Bharathiyar Institute of engineering for women - (ECE)"> Bharathiyar Institute of engineering for women - (ECE)</label>
+                            <label><input type="radio" name="college" value="Bharathiyar Institute of engineering for women - (EEE)"> Bharathiyar Institute of engineering for women - (EEE)</label>
+                            <label><input type="radio" name="college" value="CMS COLLEGE OF ENGINEERING - (ECE BATCH 1 - BIOMEDICAL)"> CMS COLLEGE OF ENGINEERING - (ECE BATCH 1 - BIOMEDICAL)</label>
+                            <label><input type="radio" name="college" value="CMS COLLEGE OF ENGINEERING - (ECE BATCH 2)"> CMS COLLEGE OF ENGINEERING - (ECE BATCH 2)</label>
+                            <label><input type="radio" name="college" value="CMS COLLEGE OF ENGINEERING - (EEE)"> CMS COLLEGE OF ENGINEERING - (EEE)</label>
+                            <label><input type="radio" name="college" value="CMS COLLEGE OF ENGINEERING - (MECH)"> CMS COLLEGE OF ENGINEERING - (MECH)</label>
+                            <label><input type="radio" name="college" value="Ganesh College of Engineering -(CIVIL)"> Ganesh College of Engineering -(CIVIL)</label>
+                            <label><input type="radio" name="college" value="Ganesh College of Engineering -(ECE BATCH 1 - BIOMEDICAL)"> Ganesh College of Engineering -(ECE BATCH 1 - BIOMEDICAL)</label>
+                            <label><input type="radio" name="college" value="Ganesh College of Engineering -(ECE BATCH 2)"> Ganesh College of Engineering -(ECE BATCH 2)</label>
+                            <label><input type="radio" name="college" value="Ganesh College of Engineering -(EEE)"> Ganesh College of Engineering -(EEE)</label>
+                            <label><input type="radio" name="college" value="Ganesh College of Engineering -(MECH)"> Ganesh College of Engineering -(MECH)</label>
+                            <label><input type="radio" name="college" value="Government College of Engineering, Dharmapuri -(CIVIL)"> Government College of Engineering, Dharmapuri -(CIVIL)</label>
+                            <label><input type="radio" name="college" value="Government College of Engineering, Dharmapuri -(ECE)"> Government College of Engineering, Dharmapuri -(ECE)</label>
+                            <label><input type="radio" name="college" value="Government College of Engineering, Dharmapuri -(EEE)"> Government College of Engineering, Dharmapuri -(EEE)</label>
+                            <label><input type="radio" name="college" value="Government College of Engineering, Dharmapuri -(MECH)"> Government College of Engineering, Dharmapuri -(MECH)</label>
+                            <label><input type="radio" name="college" value="GOVERNMENT COLLEGE OF ENGINEERING - BARGUR (ECE)"> GOVERNMENT COLLEGE OF ENGINEERING - BARGUR (ECE)</label>
+                            <label><input type="radio" name="college" value="GOVERNMENT COLLEGE OF ENGINEERING - BARGUR (EEE)"> GOVERNMENT COLLEGE OF ENGINEERING - BARGUR (EEE)</label>
+                            <label><input type="radio" name="college" value="GOVERNMENT COLLEGE OF ENGINEERING - BARGUR (MECH)"> GOVERNMENT COLLEGE OF ENGINEERING - BARGUR (MECH)</label>
+                            <label><input type="radio" name="college" value="GOVERNMENT COLLEGE OF ENGINEERING - SALEM (CIVIL)"> GOVERNMENT COLLEGE OF ENGINEERING - SALEM (CIVIL)</label>
+                            <label><input type="radio" name="college" value="GOVERNMENT COLLEGE OF ENGINEERING - SALEM (ECE)"> GOVERNMENT COLLEGE OF ENGINEERING - SALEM (ECE)</label>
+                            <label><input type="radio" name="college" value="GOVERNMENT COLLEGE OF ENGINEERING - SALEM (EEE)"> GOVERNMENT COLLEGE OF ENGINEERING - SALEM (EEE)</label>
+                            <label><input type="radio" name="college" value="GOVERNMENT COLLEGE OF ENGINEERING - SALEM (MECH BATCH 1)"> GOVERNMENT COLLEGE OF ENGINEERING - SALEM (MECH BATCH 1)</label>
+                            <label><input type="radio" name="college" value="GOVERNMENT COLLEGE OF ENGINEERING - SALEM (MECH BATCH 2 - Metallurgical)"> GOVERNMENT COLLEGE OF ENGINEERING - SALEM (MECH BATCH 2 - Metallurgical)</label>
+                            <label><input type="radio" name="college" value="JAYALAKSHMI INSTITUTE OF TECHNOLOGY -(CIVIL BATCH 1 -  AGRI)"> JAYALAKSHMI INSTITUTE OF TECHNOLOGY -(CIVIL BATCH 1 -  AGRI)</label>
+                            <label><input type="radio" name="college" value="JAYALAKSHMI INSTITUTE OF TECHNOLOGY -(CIVIL BATCH 2)"> JAYALAKSHMI INSTITUTE OF TECHNOLOGY -(CIVIL BATCH 2)</label>
+                            <label><input type="radio" name="college" value="JAYALAKSHMI INSTITUTE OF TECHNOLOGY -(ECE)"> JAYALAKSHMI INSTITUTE OF TECHNOLOGY -(ECE)</label>
+                            <label><input type="radio" name="college" value="JAYALAKSHMI INSTITUTE OF TECHNOLOGY -(EEE)"> JAYALAKSHMI INSTITUTE OF TECHNOLOGY -(EEE)</label>
+                            <label><input type="radio" name="college" value="JAYALAKSHMI INSTITUTE OF TECHNOLOGY -(MECH)"> JAYALAKSHMI INSTITUTE OF TECHNOLOGY -(MECH)</label>
+                            <label><input type="radio" name="college" value="PAAVAI COLLEGE OF ENGINEERING - (ECE BATCH 1 - BIOMEDICAL)"> PAAVAI COLLEGE OF ENGINEERING - (ECE BATCH 1 - BIOMEDICAL)</label>
+                            <label><input type="radio" name="college" value="PAAVAI COLLEGE OF ENGINEERING - (ECE BATCH 2)"> PAAVAI COLLEGE OF ENGINEERING - (ECE BATCH 2)</label>
+                            <label><input type="radio" name="college" value="PAAVAI COLLEGE OF ENGINEERING - (EEE)"> PAAVAI COLLEGE OF ENGINEERING - (EEE)</label>
+                            <label><input type="radio" name="college" value="PAAVAI COLLEGE OF ENGINEERING - (MECH BATCH 1 - AUTOMOBILE)"> PAAVAI COLLEGE OF ENGINEERING - (MECH BATCH 1 - AUTOMOBILE)</label>
+                            <label><input type="radio" name="college" value="PAAVAI COLLEGE OF ENGINEERING - (MECH BATCH 2)"> PAAVAI COLLEGE OF ENGINEERING - (MECH BATCH 2)</label>
+                            <label><input type="radio" name="college" value="PGP COLLEGE OF ENGINEERING AND TECHNOLOGY - (ECE)"> PGP COLLEGE OF ENGINEERING AND TECHNOLOGY - (ECE)</label>
+                            <label><input type="radio" name="college" value="PGP COLLEGE OF ENGINEERING AND TECHNOLOGY - (ECE BATCH 1 - BIOMEDICAL)"> PGP COLLEGE OF ENGINEERING AND TECHNOLOGY - (ECE BATCH 1 - BIOMEDICAL)</label>
+                            <label><input type="radio" name="college" value="PGP COLLEGE OF ENGINEERING AND TECHNOLOGY - (ECE BATCH 2)"> PGP COLLEGE OF ENGINEERING AND TECHNOLOGY - (ECE BATCH 2)</label>
+                            <label><input type="radio" name="college" value="PGP COLLEGE OF ENGINEERING AND TECHNOLOGY - (EEE)"> PGP COLLEGE OF ENGINEERING AND TECHNOLOGY - (EEE)</label>
+                            <label><input type="radio" name="college" value="PGP COLLEGE OF ENGINEERING AND TECHNOLOGY - (MECH)"> PGP COLLEGE OF ENGINEERING AND TECHNOLOGY - (MECH)</label>
+                            <label><input type="radio" name="college" value="PODHIGAI COLLEGE OF ENGINEERING AND TECHNOLOGY -(CIVIL)"> PODHIGAI COLLEGE OF ENGINEERING AND TECHNOLOGY -(CIVIL)</label>
+                            <label><input type="radio" name="college" value="PODHIGAI COLLEGE OF ENGINEERING AND TECHNOLOGY -(ECE)"> PODHIGAI COLLEGE OF ENGINEERING AND TECHNOLOGY -(ECE)</label>
+                            <label><input type="radio" name="college" value="PODHIGAI COLLEGE OF ENGINEERING AND TECHNOLOGY -(EEE)"> PODHIGAI COLLEGE OF ENGINEERING AND TECHNOLOGY -(EEE)</label>
+                            <label><input type="radio" name="college" value="PODHIGAI COLLEGE OF ENGINEERING AND TECHNOLOGY -(MECH)"> PODHIGAI COLLEGE OF ENGINEERING AND TECHNOLOGY -(MECH)</label>
+                            <label><input type="radio" name="college" value="Priyadarshini Engineering college -(CIVIL)"> Priyadarshini Engineering college -(CIVIL)</label>
+                            <label><input type="radio" name="college" value="Priyadarshini Engineering college -(ECE)"> Priyadarshini Engineering college -(ECE)</label>
+                            <label><input type="radio" name="college" value="Priyadarshini Engineering college -(EEE)"> Priyadarshini Engineering college -(EEE)</label>
+                            <label><input type="radio" name="college" value="Priyadarshini Engineering college -(MECH)"> Priyadarshini Engineering college -(MECH)</label>
+                            <label><input type="radio" name="college" value="SALEM COLLEGE OF ENGINEERING AND TECHNOLOGY - (CIVIL)"> SALEM COLLEGE OF ENGINEERING AND TECHNOLOGY - (CIVIL)</label>
+                            <label><input type="radio" name="college" value="SALEM COLLEGE OF ENGINEERING AND TECHNOLOGY - (ECE)"> SALEM COLLEGE OF ENGINEERING AND TECHNOLOGY - (ECE)</label>
+                            <label><input type="radio" name="college" value="SALEM COLLEGE OF ENGINEERING AND TECHNOLOGY - (ECE BATCH 1 - BIOMEDICAL)"> SALEM COLLEGE OF ENGINEERING AND TECHNOLOGY - (ECE BATCH 1 - BIOMEDICAL)</label>
+                            <label><input type="radio" name="college" value="SALEM COLLEGE OF ENGINEERING AND TECHNOLOGY - (EEE)"> SALEM COLLEGE OF ENGINEERING AND TECHNOLOGY - (EEE)</label>
+                            <label><input type="radio" name="college" value="SALEM COLLEGE OF ENGINEERING AND TECHNOLOGY - (MECH)"> SALEM COLLEGE OF ENGINEERING AND TECHNOLOGY - (MECH)</label>
+                            <label><input type="radio" name="college" value="Shree Sathyam College of Engineering and Technology -(CIVIL)"> Shree Sathyam College of Engineering and Technology -(CIVIL)</label>
+                            <label><input type="radio" name="college" value="Shree Sathyam College of Engineering and Technology -(ECE BATCH 1 - BIOMEDICAL)"> Shree Sathyam College of Engineering and Technology -(ECE BATCH 1 - BIOMEDICAL)</label>
+                            <label><input type="radio" name="college" value="Shree Sathyam College of Engineering and Technology -(ECE BATCH 2)"> Shree Sathyam College of Engineering and Technology -(ECE BATCH 2)</label>
+                            <label><input type="radio" name="college" value="Shree Sathyam College of Engineering and Technology -(EEE)"> Shree Sathyam College of Engineering and Technology -(EEE)</label>
+                            <label><input type="radio" name="college" value="Shree Sathyam College of Engineering and Technology -(MECH)"> Shree Sathyam College of Engineering and Technology -(MECH)</label>
+                            <label><input type="radio" name="college" value="SRG ENGINEERING COLLEGE - (CIVIL)"> SRG ENGINEERING COLLEGE - (CIVIL)</label>
+                            <label><input type="radio" name="college" value="SRG ENGINEERING COLLEGE - (ECE)"> SRG ENGINEERING COLLEGE - (ECE)</label>
+                            <label><input type="radio" name="college" value="SRG ENGINEERING COLLEGE - (EEE)"> SRG ENGINEERING COLLEGE - (EEE)</label>
+                            <label><input type="radio" name="college" value="SRG ENGINEERING COLLEGE - (MECH)"> SRG ENGINEERING COLLEGE - (MECH)</label>
+                            <label><input type="radio" name="college" value="Tagore Institute of Engineering and Technology - (CIVIL)"> Tagore Institute of Engineering and Technology - (CIVIL)</label>
+                            <label><input type="radio" name="college" value="Tagore Institute of Engineering and Technology - (ECE)"> Tagore Institute of Engineering and Technology - (ECE)</label>
+                            <label><input type="radio" name="college" value="Tagore Institute of Engineering and Technology - (EEE)"> Tagore Institute of Engineering and Technology - (EEE)</label>
+                            <label><input type="radio" name="college" value="Tagore Institute of Engineering and Technology - (MECH)"> Tagore Institute of Engineering and Technology - (MECH)</label>
+                            <label><input type="radio" name="college" value="VARUVAN VADIVELAN INSTITUTE OF TECHNOLOGY -(CIVIL)"> VARUVAN VADIVELAN INSTITUTE OF TECHNOLOGY -(CIVIL)</label>
+                            <label><input type="radio" name="college" value="VARUVAN VADIVELAN INSTITUTE OF TECHNOLOGY -(ECE)"> VARUVAN VADIVELAN INSTITUTE OF TECHNOLOGY -(ECE)</label>
+                            <label><input type="radio" name="college" value="VARUVAN VADIVELAN INSTITUTE OF TECHNOLOGY -(EEE)"> VARUVAN VADIVELAN INSTITUTE OF TECHNOLOGY -(EEE)</label>
+                            <label><input type="radio" name="college" value="VARUVAN VADIVELAN INSTITUTE OF TECHNOLOGY -(MECH)"> VARUVAN VADIVELAN INSTITUTE OF TECHNOLOGY -(MECH)</label>
+                            <label><input type="radio" name="college" value="VSA GROUP OF INSTITUTIONS - (CIVIL)"> VSA GROUP OF INSTITUTIONS - (CIVIL)</label>
+                            <label><input type="radio" name="college" value="VSA GROUP OF INSTITUTIONS - (ECE BATCH 1 - BIOMEDICAL)"> VSA GROUP OF INSTITUTIONS - (ECE BATCH 1 - BIOMEDICAL)</label>
+                            <label><input type="radio" name="college" value="VSA GROUP OF INSTITUTIONS - (ECE BATCH 2)"> VSA GROUP OF INSTITUTIONS - (ECE BATCH 2)</label>
+                            <label><input type="radio" name="college" value="VSA GROUP OF INSTITUTIONS - (EEE)"> VSA GROUP OF INSTITUTIONS - (EEE)</label>
+                            <label><input type="radio" name="college" value="VSA GROUP OF INSTITUTIONS - (MECH)"> VSA GROUP OF INSTITUTIONS - (MECH)</label>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="date">DATE *</label></td>
+                    <td><input type="date" id="date" name="date" required></td>
+                </tr>
+                <tr>
+                    <td><label for="attendance">ATTENDANCE *</label></td>
+                    <td><input type="file" id="attendance" name="attendance" accept=".jpg,.jpeg,.png,.pdf" multiple required></td>
+                </tr>
+                <tr>
+                    <td><label for="morning-geotag">MORNING GEOTAG IMAGES *</label></td>
+                    <td>
+                        <input type="file" id="morning-geotag" name="morning1" accept=".jpg,.jpeg,.png" required><br>
+                        <input type="file" name="morning2" accept=".jpg,.jpeg,.png"><br>
+                        <input type="file" name="morning3" accept=".jpg,.jpeg,.png"><br>
+                        <input type="file" name="morning4" accept=".jpg,.jpeg,.png"><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="afternoon-geotag">AFTERNOON GEOTAG IMAGES *</label></td>
+                    <td>
+                        <input type="file" id="afternoon-geotag" name="afternoon1" accept=".jpg,.jpeg,.png" required><br>
+                        <input type="file" name="afternoon2" accept=".jpg,.jpeg,.png"><br>
+                        <input type="file" name="afternoon3" accept=".jpg,.jpeg,.png"><br>
+                        <input type="file" name="afternoon4" accept=".jpg,.jpeg,.png"><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="video">VIDEO (1 MINUTE)</label></td>
+                    <td><input type="file" id="video" name="video" accept=".mp4,.mov,.avi"></td>
+                </tr>
+                <tr>
+                    <td><label for="day">DAY *</label></td>
+                    <td>
+                        <select id="day" name="day" required>
+                            <option value="">Select Day</option>
+                            <option value="Day 1">Day 1</option>
+                            <option value="Day 2">Day 2</option>
+                            <option value="Day 3">Day 3</option>
+                            <option value="Day 4">Day 4</option>
+                            <option value="Day 5">Day 5</option>
+                            <option value="Day 6">Day 6</option>
+                            <option value="Day 7">Day 7</option>
+                            <option value="Day 8">Day 8</option>
+                            <option value="Day 9">Day 9</option>
+                            <option value="Day 10">Day 10</option>
+                            <option value="Day 11">Day 11</option>
+                            <option value="Day 12">Day 12</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <button type="submit">Submit Form</button>
+        </form>
+    </div>
 
 </body>
 </html>
